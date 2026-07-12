@@ -1,9 +1,24 @@
 import gymnasium as gym
 import torch
+from pathlib import Path
 
 env = gym.make("CarRacing-v3")
 
-def generate_episode(n_ep, env):
+def generate_episode_VAE(n_ep, env):
+    for _ in range(n_ep):
+        observation, info = env.reset()
+        observations = []
+        while True:
+            action = env.action_space.sample()
+            observation, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
+            
+            observations.append(observation)
+            if done:
+                break
+    return observations
+
+def generate_episode_RNN(n_ep, env):
     
     observations = []
     actions = []
@@ -13,7 +28,7 @@ def generate_episode(n_ep, env):
 
     observation, info = env.reset()
 
-    for _ in range(n_ep):
+    for _ in range(n_ep + 1):
         temp_obs = []
         temp_acts = []
         temp_rews = []
@@ -22,7 +37,7 @@ def generate_episode(n_ep, env):
         
         terminated_early = False
 
-        for _ in range(50):
+        for _ in range(100):
             temp_obs.append(observation)
             
             action = env.action_space.sample()
@@ -49,7 +64,7 @@ def generate_episode(n_ep, env):
     return observations, actions, rewards, dones, next_states
 
 if __name__ == "__main__":
-    observations, actions, rewards, dones, next_states = generate_episode(25, env)
+    observations, actions, rewards, dones, next_states = generate_episode_RNN(20, env)
 
     tensors_dict = {
         "observations" : observations,
@@ -59,5 +74,6 @@ if __name__ == "__main__":
         "next_states" : next_states,
     }
 
-    torch.save(tensors_dict, 'data/observations.pt')
-
+    script_dir = Path(__file__).resolve().parent
+    current_dir = script_dir / 'observations.pt'
+    torch.save(tensors_dict, current_dir)

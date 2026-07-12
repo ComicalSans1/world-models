@@ -20,7 +20,7 @@ class Encoder(nn.Module):
         
         self.mu = nn.Linear(4096, n_hidden)
         self.logstd = nn.Linear(4096, n_hidden)
-        
+         
     def forward(self, x):
         x = x.permute(0, 3, 1, 2)
         

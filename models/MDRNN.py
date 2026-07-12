@@ -9,6 +9,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def gmm_loss(mean, std, weights, ys):
+    ys = ys.unsqueeze(-2)
+    
     normals = torch.distributions.Normal(mean, std)
     
     log_probs = normals.log_prob(ys)
@@ -54,4 +56,4 @@ class MDRNN():
 
         ds = gmm_outs[:, :, -1]
         
-        return mus, sigmas, logpi, rs, ds
+        return mus, sigmas, logpi, rs, ds   
